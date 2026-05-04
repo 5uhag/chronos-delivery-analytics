@@ -1,0 +1,19 @@
+# env
+.env
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Data (already seeded to MongoDB Atlas)
+python/data/
+
+# OS
+.DS_Store
+Thumbs.db
