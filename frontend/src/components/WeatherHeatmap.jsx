@@ -36,7 +36,7 @@ export default function WeatherHeatmap({ data = [], loading }) {
     const row = { area };
     weathers.forEach((w) => {
       const match = data.find((d) => d.area === area && d.weather === w);
-      row[w] = match ? Number(match.avg_delay).toFixed(1) : 0;
+      row[w] = match ? +Number(match.avg_delay).toFixed(1) : 0;
     });
     return row;
   });

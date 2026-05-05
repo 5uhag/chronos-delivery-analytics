@@ -9,7 +9,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm shadow-xl">
       <p className="text-gray-300 font-medium mb-1">{label}</p>
-      <p className="text-blue-400">Avg delay: <span className="font-bold text-white">{payload[0].value} min</span></p>
+      <p className="text-blue-400">Avg delay: <span className="font-bold text-white">{Number(payload[0].value).toFixed(1)} min</span></p>
       <p className="text-gray-400">Orders: {payload[0].payload.order_count}</p>
     </div>
   );
@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function DelayChart({ data = [], loading }) {
   const chartData = data.map((d) => ({
     name:        d.name,
-    delay:       Number(d.avg_delay_mins).toFixed(1),
+    delay:       +Number(d.avg_delay_mins).toFixed(1),
     order_count: d.order_count,
   }));
 
