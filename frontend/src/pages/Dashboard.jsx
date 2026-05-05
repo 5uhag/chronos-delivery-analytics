@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import StatsCards      from '../components/StatsCards';
-import AreaFilter      from '../components/AreaFilter';
-import DelayChart      from '../components/DelayChart';
-import WeatherHeatmap  from '../components/WeatherHeatmap';
-import TimeComparison  from '../components/TimeComparison';
+import StatsCards       from '../components/StatsCards';
+import AreaFilter       from '../components/AreaFilter';
+import DelayChart       from '../components/DelayChart';
+import WeatherHeatmap   from '../components/WeatherHeatmap';
+import TimeComparison   from '../components/TimeComparison';
 import ZonesLeaderboard from '../components/ZonesLeaderboard';
+import TrafficChart     from '../components/TrafficChart';
 import {
-  fetchStats, fetchAreas, fetchWeatherImpact, fetchTimeAnalysis,
+  fetchStats, fetchAreas, fetchWeatherImpact, fetchTimeAnalysis, fetchTrafficAnalysis,
 } from '../api';
 
 export default function Dashboard() {
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [areas,        setAreas]        = useState([]);
   const [weatherData,  setWeatherData]  = useState([]);
   const [timeData,     setTimeData]     = useState([]);
+  const [trafficData,  setTrafficData]  = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
 
@@ -22,16 +24,18 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [s, a, w, t] = await Promise.all([
+      const [s, a, w, t, tr] = await Promise.all([
         fetchStats(),
         fetchAreas(),
         fetchWeatherImpact(area),
         fetchTimeAnalysis(area),
+        fetchTrafficAnalysis(area),
       ]);
       setStats(s);
       setAreas(a);
       setWeatherData(w);
       setTimeData(t);
+      setTrafficData(tr);
     } catch (e) {
       setError('Could not reach the API. Is the backend running?');
     } finally {
@@ -70,17 +74,20 @@ export default function Dashboard() {
         {/* Area filter */}
         <AreaFilter selected={area} onChange={setArea} />
 
-        {/* Row 1: Delay chart + Weather heatmap */}
+        {/* Row 1: Delay by area + Delay by traffic */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <DelayChart     data={areas}       loading={loading} />
-          <WeatherHeatmap data={weatherData} loading={loading} />
+          <DelayChart   data={areas}       loading={loading} />
+          <TrafficChart data={trafficData} loading={loading} />
         </div>
 
-        {/* Row 2: Time comparison + Zones leaderboard */}
+        {/* Row 2: Weather heatmap + Time comparison */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TimeComparison    data={timeData} loading={loading} />
-          <ZonesLeaderboard  data={areas}    loading={loading} />
+          <WeatherHeatmap data={weatherData} loading={loading} />
+          <TimeComparison data={timeData}    loading={loading} />
         </div>
+
+        {/* Row 3: Zones leaderboard */}
+        <ZonesLeaderboard data={areas} loading={loading} />
 
         <footer className="text-center text-xs text-gray-700 pb-4">
           Data source: Kaggle — Food Delivery Time Prediction dataset &nbsp;·&nbsp;

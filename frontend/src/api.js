@@ -7,5 +7,6 @@ const api = axios.create({ baseURL: BASE });
 export const fetchStats        = ()           => api.get('/api/stats').then(r => r.data);
 export const fetchAreas        = ()           => api.get('/api/areas').then(r => r.data);
 export const fetchWeatherImpact= (area = '')  => api.get('/api/weather-impact', { params: { area } }).then(r => r.data);
-export const fetchTimeAnalysis = (area = '')  => api.get('/api/time-analysis',  { params: { area } }).then(r => r.data);
+export const fetchTimeAnalysis    = (area = '')  => api.get('/api/time-analysis',    { params: { area } }).then(r => r.data);
+export const fetchTrafficAnalysis = (area = '')  => api.get('/api/traffic-analysis', { params: { area } }).then(r => r.data);
 export const fetchDeliveries   = (params = {}) => api.get('/api/deliveries', { params }).then(r => r.data);

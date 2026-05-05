@@ -10,8 +10,9 @@ app.use(express.json());
 app.use('/api/deliveries',     require('./routes/deliveries'));
 app.use('/api/areas',          require('./routes/areas'));
 app.use('/api/weather-impact', require('./routes/weather'));
-app.use('/api/time-analysis',  require('./routes/timeAnalysis'));
-app.use('/api/stats',          require('./routes/stats'));
+app.use('/api/time-analysis',     require('./routes/timeAnalysis'));
+app.use('/api/traffic-analysis',  require('./routes/trafficAnalysis'));
+app.use('/api/stats',             require('./routes/stats'));
 
 app.get('/', (req, res) => res.json({ status: 'Chronos API running' }));
 
