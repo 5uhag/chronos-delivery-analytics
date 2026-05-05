@@ -16,20 +16,29 @@ WEATHER_NORM = {
     'conditions Sunny':      'Clear',
     'conditions Cloudy':     'Cloudy',
     'conditions Windy':      'Windy',
-    'conditions Fog':        'Fog',
-    'conditions Stormy':     'Rain',
-    'conditions Sandstorms': 'Fog',
+    'conditions Fog':        'Foggy',
+    'conditions Stormy':     'Stormy',
+    'conditions Sandstorms': 'Foggy',   # not a Bengaluru condition, mapped to nearest realistic
     'Sunny':                 'Clear',
-    'Stormy':                'Rain',
-    'Sandstorms':            'Fog',
+    'Stormy':                'Stormy',
+    'Sandstorms':            'Foggy',
 }
 
-CITY_TO_AREA = {
-    'Urban':        'Koramangala',
-    'Metropolitian':'Indiranagar',
-    'Metropolitan': 'Indiranagar',
-    'Semi-Urban':   'Bommanahalli',
-}
+def coord_to_area(lat, lng):
+    """Assign a Bengaluru area from restaurant coordinates."""
+    lat, lng = float(lat), float(lng)
+    if lng > 77.70:
+        return 'Whitefield'
+    elif lat > 12.96 and lng > 77.62:
+        return 'Indiranagar'
+    elif lat > 12.92 and lng < 77.60:
+        return 'Jayanagar'
+    elif lat > 12.92:
+        return 'Koramangala'
+    elif lat > 12.88:
+        return 'HSR Layout'
+    else:
+        return 'Bommanahalli'
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -48,7 +57,8 @@ def add_derived_cols(df, id_prefix, start_idx=0):
 
     df['order_time'] = df['order_hour'].apply(lambda h: f"{int(h):02d}:00")
 
-    df['delivery_area'] = [DELIVERY_ZONES[i % len(DELIVERY_ZONES)] for i in range(n)]
+    if 'delivery_area' not in df.columns:
+        df['delivery_area'] = [DELIVERY_ZONES[i % len(DELIVERY_ZONES)] for i in range(n)]
 
     area_avg = df.groupby('restaurant_area')['delivery_time_mins'].transform('mean')
     df['estimated_time_mins'] = (area_avg * 0.80).round(1)
@@ -75,6 +85,10 @@ def clean_indian(path='data/indian_delivery.csv'):
         df = pd.read_csv(path)
     df.columns = [c.strip() for c in df.columns]
 
+    # Keep only Bengaluru records
+    df = df[df['Delivery_person_ID'].astype(str).str.strip().str.startswith('BANG')].copy()
+    print(f"  Bengaluru records filtered: {len(df)}")
+
     # delivery_time_mins: strip "(min) " prefix
     df['delivery_time_mins'] = (
         df['Time_taken(min)']
@@ -85,16 +99,12 @@ def clean_indian(path='data/indian_delivery.csv'):
     df['delivery_time_mins'] = pd.to_numeric(df['delivery_time_mins'], errors='coerce')
 
     # weather: strip "conditions " prefix, then normalise
-    df['weather'] = (
-        df['Weatherconditions']
-        .astype(str)
-        .str.replace(r'^conditions\s+', '', regex=True)
-        .str.strip()
-    )
-    df['weather'] = df['weather'].replace(WEATHER_NORM)
+    df['weather'] = df['Weatherconditions'].astype(str).str.strip().replace(WEATHER_NORM)
+    df = df[~df['weather'].isin(['NaN', 'nan', ''])]
 
     # traffic_density
     df['traffic_density'] = df['Road_traffic_density'].astype(str).str.strip()
+    df = df[~df['traffic_density'].isin(['NaN', 'nan', ''])]
 
     # order_hour from Time_Orderd
     df['order_hour'] = (
@@ -107,8 +117,13 @@ def clean_indian(path='data/indian_delivery.csv'):
     )
     df['day_of_week'] = df['day_of_week'].fillna('Unknown')
 
-    # restaurant_area from City
-    df['restaurant_area'] = df['City'].map(CITY_TO_AREA).fillna('HSR Layout')
+    # restaurant_area and delivery_area from coordinates
+    df['restaurant_area'] = df.apply(
+        lambda r: coord_to_area(r['Restaurant_latitude'], r['Restaurant_longitude']), axis=1
+    )
+    df['delivery_area'] = df.apply(
+        lambda r: coord_to_area(r['Delivery_location_latitude'], r['Delivery_location_longitude']), axis=1
+    )
 
     # distance_km via haversine
     df['distance_km'] = haversine(
