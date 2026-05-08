@@ -31,9 +31,16 @@ export default function DelayChart({ data = [], loading }) {
         <div className="flex items-center justify-center h-56 text-gray-600">Loading…</div>
       ) : (
         <ResponsiveContainer width="100%" height="85%">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 40 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-            <XAxis dataKey="name" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+            <XAxis
+              dataKey="name"
+              tick={{ fill: '#9ca3af', fontSize: 11 }}
+              angle={-30}
+              textAnchor="end"
+              interval={0}
+              height={55}
+            />
             <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="delay" radius={[6, 6, 0, 0]}>

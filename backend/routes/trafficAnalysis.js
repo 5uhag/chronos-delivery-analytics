@@ -7,7 +7,9 @@ const TRAFFIC_ORDER = ['Low', 'Medium', 'High', 'Jam'];
 router.get('/', async (req, res) => {
   try {
     const { area } = req.query;
-    const match = area ? { restaurant_area: area } : {};
+    const match = area
+      ? { restaurant_area: area, traffic_density: { $in: TRAFFIC_ORDER } }
+      : { traffic_density: { $in: TRAFFIC_ORDER } };
 
     const data = await Delivery.aggregate([
       { $match: match },
