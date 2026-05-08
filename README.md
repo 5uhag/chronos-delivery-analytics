@@ -1,7 +1,7 @@
 # Chronos — Bengaluru Urban Delivery Analytics Dashboard
 
 BCA 6th Semester · BES Degree College · BCU  
-**Team:** Lakshmi and Vinodhini R · **Guide:** Prof. Jyothi MN
+**Team:** Lakshmi , Mythili N and Vinodhini R · **Guide:** Prof. Jyothi MN
 
 A full-stack analytics dashboard that visualizes how traffic, weather, and time of day affect food delivery times across Bengaluru zones.
 
